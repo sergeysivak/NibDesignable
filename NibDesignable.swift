@@ -24,82 +24,60 @@
 import UIKit
 
 public protocol NibDesignableProtocol: NSObjectProtocol {
-    /**
-     Identifies the view that will be the superview of the contents loaded from
-     the Nib. Referenced in setupNib().
-
-     - returns: Superview for Nib contents.
-     */
+    
+    /// Identifies the view that will be the superview of the contents loaded from
+    /// the Nib. Referenced in setupNib().
     var nibContainerView: UIView { get }
-    // MARK: - Nib loading
 
-    /**
-     Called to load the nib in setupNib().
-
-     - returns: UIView instance loaded from a nib file.
-     */
+    /// Called to load the nib in setupNib().
+    ///
+    /// - Returns:  UIView instance loaded from a nib file.
     func loadNib() -> UIView
-    /**
-     Called in the default implementation of loadNib(). Default is class name.
-
-     - returns: Name of a single view nib file.
-     */
+   
+    /// Called in the default implementation of loadNib(). Default is class name.
+    ///
+    /// - Returns:  Name of a single view nib file.
     func nibName() -> String
 }
 
 extension NibDesignableProtocol {
-    // MARK: - Nib loading
 
-    /**
-     Called to load the nib in setupNib().
-
-     - returns: UIView instance loaded from a nib file.
-     */
     public func loadNib() -> UIView {
         let bundle = Bundle(for: type(of: self))
         let nib = UINib(nibName: self.nibName(), bundle: bundle)
         return nib.instantiate(withOwner: self, options: nil)[0] as! UIView // swiftlint:disable:this force_cast
     }
 
-    // MARK: - Nib loading
-
-    /**
-     Called in init(frame:) and init(aDecoder:) to load the nib and add it as a subview.
-     */
+    
+    /// Called in init(frame:) and init(aDecoder:) to load the nib and add it as a subview.
     fileprivate func setupNib() {
         let view = self.loadNib()
-        self.nibContainerView.addSubview(view)
+        nibContainerView.addSubview(view)
         view.translatesAutoresizingMaskIntoConstraints = false
         let bindings = ["view": view]
-        self.nibContainerView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[view]|", options:[], metrics:nil, views: bindings))
-        self.nibContainerView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[view]|", options:[], metrics:nil, views: bindings))
-    }
-}
-
-extension UIView {
-    public var nibContainerView: UIView {
-        return self
-    }
-    /**
-     Called in the default implementation of loadNib(). Default is class name.
-
-     - returns: Name of a single view nib file.
-     */
-    open func nibName() -> String {
-        return type(of: self).description().components(separatedBy: ".").last!
+        nibContainerView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[view]|", options:[], metrics:nil, views: bindings))
+        nibContainerView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[view]|", options:[], metrics:nil, views: bindings))
     }
 }
 
 @IBDesignable
 open class NibDesignable: UIView, NibDesignableProtocol {
+    
+    public var nibContainerView: UIView {
+        return self
+    }
+    
+    open func nibName() -> String {
+        return type(of: self).description().components(separatedBy: ".").last!
+    }
 
-    // MARK: - Initializer
+
     override public init(frame: CGRect) {
         super.init(frame: frame)
         self.setupNib()
     }
 
-    // MARK: - NSCoding
+
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         self.setupNib()
@@ -108,12 +86,17 @@ open class NibDesignable: UIView, NibDesignableProtocol {
 
 @IBDesignable
 open class NibDesignableTableViewCell: UITableViewCell, NibDesignableProtocol {
-    public override var nibContainerView: UIView {
-        return self.contentView
+    
+    public var nibContainerView: UIView {
+        return contentView
+    }
+    
+    open func nibName() -> String {
+        return type(of: self).description().components(separatedBy: ".").last!
     }
 
     // MARK: - Initializer
-    override public init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override public init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.setupNib()
     }
@@ -128,9 +111,13 @@ open class NibDesignableTableViewCell: UITableViewCell, NibDesignableProtocol {
 @IBDesignable
 open class NibDesignableTableViewHeaderFooterView: UITableViewHeaderFooterView, NibDesignableProtocol {
 
-	public override var nibContainerView: UIView {
-			return self.contentView
+	public var nibContainerView: UIView {
+        return contentView
 	}
+    
+    open func nibName() -> String {
+        return type(of: self).description().components(separatedBy: ".").last!
+    }
 
 	// MARK: - Initializer
 	override public init(reuseIdentifier: String?) {
@@ -147,6 +134,14 @@ open class NibDesignableTableViewHeaderFooterView: UITableViewHeaderFooterView, 
 
 @IBDesignable
 open class NibDesignableControl: UIControl, NibDesignableProtocol {
+    
+    public var nibContainerView: UIView {
+        return self
+    }
+    
+    open func nibName() -> String {
+        return type(of: self).description().components(separatedBy: ".").last!
+    }
 
     // MARK: - Initializer
     override public init(frame: CGRect) {
@@ -163,6 +158,14 @@ open class NibDesignableControl: UIControl, NibDesignableProtocol {
 
 @IBDesignable
 open class NibDesignableCollectionReusableView: UICollectionReusableView, NibDesignableProtocol {
+    
+    public var nibContainerView: UIView {
+        return self
+    }
+    
+    open func nibName() -> String {
+        return type(of: self).description().components(separatedBy: ".").last!
+    }
 
     // MARK: - Initializer
     override public init(frame: CGRect) {
@@ -179,8 +182,13 @@ open class NibDesignableCollectionReusableView: UICollectionReusableView, NibDes
 
 @IBDesignable
 open class NibDesignableCollectionViewCell: UICollectionViewCell, NibDesignableProtocol {
-    public override var nibContainerView: UIView {
+    
+    public var nibContainerView: UIView {
         return self.contentView
+    }
+    
+    open func nibName() -> String {
+        return type(of: self).description().components(separatedBy: ".").last!
     }
 
     // MARK: - Initializer
